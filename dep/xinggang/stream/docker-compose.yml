@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  apps-stream:
+    image: gostream/docker-apps-stream:latest
+
+    #ports:
+    #  - 1088:1088
+    #  - 2554:2554
+    #  - 1945:1945
+    #  - 1946:1946
+    #  - 40000-50000:40000-50000/udp
+    command:
+      ["-c","http://192.168.6.21:1032/ipc/callback","-PublicIP","10.16.68.159","-APIPort","1088","-RtspPort","2554","-RtmpPort","1945","-FlvPort","1946","-UDPPortMin","40000","-UDPPortMax","50000"]
+
+    container_name: apps-stream
+    restart: always
+    ulimits:
+      nproc: 64435
+      nofile:
+        soft: 30000
+        hard: 40000
+    volumes:
+      - /var/lic/apps-stream/:/lic/:ro
+      - /etc/:/docker/etc/:ro
+      
+    network_mode: "host"
