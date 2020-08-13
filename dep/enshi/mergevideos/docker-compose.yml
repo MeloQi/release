@@ -1,0 +1,40 @@
+version: '3.4'
+
+services:
+  mergevideos-nginx:
+    image: nginx
+    #ports:
+    #  - 1181:80
+    volumes:
+      - /home/video_download/:/video/
+      - /var/opt/apps-mergevideos/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /var/opt/apps-mergevideos/nginx/logs/:/var/log/nginx/
+    network_mode: "host"
+    container_name: mergevideos-nginx
+    restart: always
+    depends_on:
+      - apps-mergevideos
+
+  apps-mergevideos:
+    image: gostream/docker-apps-mergevideos:latest
+
+    #ports:
+    #  - 1188:1188
+    command:
+      ["-APIPort","1188","-ExpCheckInterval","10","-StorePath","/data/video/"]
+
+    volumes:
+      - /home/video_download/:/data/video/
+      - /var/lic/apps-mergevideos/:/lic/:ro
+      - /etc/:/docker/etc/:ro
+
+    network_mode: "host"
+
+    container_name: apps-mergevideos
+    restart: always
+    ulimits:
+      nproc: 64435
+      nofile:
+        soft: 30000
+        hard: 40000
+

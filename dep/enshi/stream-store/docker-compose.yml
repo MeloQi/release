@@ -1,0 +1,39 @@
+version: '3.4'
+
+services:
+  store-videofiles-nginx:
+    image: nginx
+    #ports:
+    #  - 8181:80
+    volumes:
+      - /home/video_data/:/video/
+      - /var/opt/apps-stream-store/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /var/opt/apps-stream-store/nginx/logs/:/var/log/nginx/
+    network_mode: "host"
+    container_name: store-videofiles-nginx
+    restart: always
+    depends_on:
+      - apps-stream-store
+
+  apps-stream-store:
+    image: gostream/docker-apps-stream-store:latest
+
+    #ports:
+    #  - 1189:1189
+    command:
+      ["-APIPort","1189","-FileDuration","60","-ExpCheckInterval","10","-CachePath","/data/cache/","-StorePath","/data/video/"]
+
+    volumes:
+      - /dev/shm/video_cache/:/data/cache/
+      - /home/video_data/:/data/video/
+      - /var/lic/apps-stream-store/:/lic/:ro
+      - /etc/:/docker/etc/:ro
+    network_mode: "host"
+    container_name: apps-stream-store
+    restart: always
+    ulimits:
+      nproc: 64435
+      nofile:
+        soft: 30000
+        hard: 40000
+
